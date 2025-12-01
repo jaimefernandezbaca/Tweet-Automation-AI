@@ -1,8 +1,0 @@
-{
-  "api_key": "X",
-  "api_secret": "X",
-  "access_token": "X",
-  "access_secret": "X",
-  "tweet": "Hello from GitHub Actions",
-  "run_at": "2025-02-03 22:30:00"
-}
