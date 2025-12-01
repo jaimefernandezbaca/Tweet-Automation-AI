@@ -1,15 +1,18 @@
-from datetime import datetime, timezone
-import requests
+import os
 import json
+from datetime import datetime, timezone
+
+import requests
 import tweepy
 
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# CONFIG: mismos valores que en app.py
-SUPABASE_URL = "https://cmkmvcggrqgszjxktdjl.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNta212Y2dncnFnc3pqeGt0ZGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2MDc2ODIsImV4cCI6MjA4MDE4MzY4Mn0.GFBiWRG7INp10I8cg8XydLe8oyXCx7jvYiiKlyvfHf0"
-
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("SUPABASE_URL o SUPABASE_KEY no están configuradas")
 
 TABLE_URL = f"{SUPABASE_URL}/rest/v1/scheduled_tweets"
+
 
 def get_pending_tweets():
     now_utc = datetime.now(timezone.utc).isoformat()
@@ -31,6 +34,7 @@ def get_pending_tweets():
 
     return resp.json()
 
+
 def mark_status(tweet_id: str, status: str):
     headers = {
         "apikey": SUPABASE_KEY,
@@ -46,8 +50,9 @@ def mark_status(tweet_id: str, status: str):
     if not resp.ok:
         print(f"Error updating status for {tweet_id}: {resp.status_code} {resp.text}")
 
+
 def send_tweet(row: dict):
-    # Tweepy Client (API v2)
+    # Tweepy Client → API v2 (esto es lo que te funciona con plan Free)
     client = tweepy.Client(
         consumer_key=row["api_key"],
         consumer_secret=row["api_secret"],
@@ -75,6 +80,7 @@ def main():
         except Exception as e:
             print(f"Error sending {tid}: {e}")
             mark_status(tid, "failed")
+
 
 if __name__ == "__main__":
     main()
